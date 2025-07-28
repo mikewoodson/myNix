@@ -1,0 +1,32 @@
+#!/bin/bash
+
+vers=25.05
+
+set -e -x
+
+mkdir -p "$HOME/.config/nix"
+cat <<END >"$HOME/.config/nix/nix.conf"
+experimental-features = nix-command flakes
+END
+
+if ! sh <(curl -L https://nixos.org/nix/install) --no-daemon; then
+    mkdir -p mkdir "/nix/var/nix/profiles/per-user/$USER/"
+fi
+sh <(curl -L https://nixos.org/nix/install) --no-daemon
+source "$HOME/.nix-profile/etc/profile.d/nix.sh"
+nix-channel --remove nixpkgs
+nix-channel --add "https://nixos.org/channels/nixos-${vers}" "nixpkgs"
+nix-channel --update -v
+nix-env -iA nixpkgs.nix
+nix-env -u
+if [ "$vers" = unstable ]; then
+    nix-channel --add "https://github.com/nix-community/home-manager/archive/master.tar.gz" home-manager
+else
+    nix-channel --add "https://github.com/nix-community/home-manager/archive/release-${vers}.tar.gz" home-manager
+fi
+nix-channel --update -v
+export NIX_PATH=${NIX_PATH:+$NIX_PATH:}$HOME/.nix-defexpr/channels
+nix-shell '<home-manager>' -A install
+home-manager switch -v -b bk
+rm -f ~/.config/home-manager/home.nix ~/.config/nixpkgs/home.nix
+home-manager switch -v -b bk

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e -x
+
+sudo rm -rf /nix
+rm -rf $HOME/{.cache/nix,.nix-channels,.nix-defexpr,.nix-profile,.config/home-manager,.config/nix}

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+nix run home-manager -- init
+echo "default generated flake points to unstable. Update manually if you want"
+FILE="$HOME/.config/home-manager/home.nix"
+if [ -e $FILE ]; then
+    rm $FILE
+fi
+cp ${PWD}/../home.nix $FILE
+nix run home-manager -- switch --flake $HOME/.config/home-manager/

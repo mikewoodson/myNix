@@ -1,0 +1,18 @@
+#!/bin/bash
+
+vers=25.05
+
+set -e -x
+
+mkdir -p "$HOME/.config/nix"
+cat <<END >"$HOME/.config/nix/nix.conf"
+experimental-features = nix-command flakes
+END
+
+if ! sh <(curl -L https://nixos.org/nix/install) --no-daemon; then
+    mkdir -p mkdir "/nix/var/nix/profiles/per-user/$USER/"
+fi
+sh <(curl -L https://nixos.org/nix/install) --no-daemon
+
+source "$HOME/.nix-profile/etc/profile.d/nix.sh"
+
